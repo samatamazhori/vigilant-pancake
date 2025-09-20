@@ -1,19 +1,37 @@
 #!/bin/bash
 
-mkdir -p test_dotnet/rpk.saja.cad.template.infra
-touch test_dotnet/rpk.saja.cad.template.infra/rpk.saja.cad.template.infra.csproj
-touch test_dotnet/rpk.saja.cad.template.infra/Dockerfile
+mkdir -p test_dotnet
 
-mkdir -p test_dotnet/rpk.saja.cad.template.infra.db
-touch test_dotnet/rpk.saja.cad.template.infra.db/rpk.saja.cad.template.infra.db.csproj
-touch test_dotnet/rpk.saja.cad.template.infra.db/Dockerfile
+projects=(
+  "rpk.saja.cad.template.infra"
+  "rpk.saja.cad.template.infra.db"
+  "rpk.saja.cad.template.domain"
+  "rpk.saja.cad.template.presentation"
+)
 
-mkdir -p test_dotnet/rpk.saja.cad.template.domain
-touch test_dotnet/rpk.saja.cad.template.domain/rpk.saja.cad.template.domain.csproj
-touch test_dotnet/rpk.saja.cad.template.domain/Dockerfile
+for project in "${projects[@]}"
+do
+  mkdir -p "test_dotnet/${project}"
+  touch "test_dotnet/${project}/${project}.csproj"
 
-mkdir -p test_dotnet/rpk.saja.cad.template.presentation
-touch test_dotnet/rpk.saja.cad.template.presentation/rpk.saja.cad.template.presentation.csproj
-touch test_dotnet/rpk.saja.cad.template.presentation/Dockerfile
+  dockerfile_content="FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+WORKDIR /app
 
-touch test_dotnet/rpk.saja.cad.template.sln
+# Copy csproj and restore as distinct layers
+COPY ${project}.csproj ./
+RUN dotnet restore ${project}.csproj
+
+# Copy everything else and build
+COPY . .
+RUN dotnet publish ${project}.csproj -c Release -o out
+
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build-env /app/out .
+ENTRYPOINT [\"dotnet\", \"${project}.dll\"]"
+
+  echo "$dockerfile_content" > "test_dotnet/${project}/Dockerfile"
+done
+
+touch "test_dotnet/rpk.saja.cad.template.sln"
