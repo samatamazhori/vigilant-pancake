@@ -67,6 +67,24 @@ def replace_content_in_files(root_dir, old_string, new_string, file_extensions=N
             except IOError as e:
                 print(f"Error processing file {file_path}: {e}")
 
+def remove_files_by_extension(root_dir, extension):
+    """
+    Recursively removes files with a specific extension.
+
+    Args:
+        root_dir (str): The root directory to start the removal process.
+        extension (str): The file extension to remove (e.g., '.txt', '.log').
+    """
+    for dirpath, _, filenames in os.walk(root_dir):
+        for filename in filenames:
+            if filename.endswith(extension):
+                file_path = os.path.join(dirpath, filename)
+                try:
+                    os.remove(file_path)
+                    print(f"Removed file: {file_path}")
+                except OSError as e:
+                    print(f"Error removing file {file_path}: {e}")
+
 if __name__ == '__main__':
     # Example Usage for renaming the dotnet project
     test_dir = "test_dotnet"
