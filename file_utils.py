@@ -85,6 +85,79 @@ def remove_files_by_extension(root_dir, extension):
                 except OSError as e:
                     print(f"Error removing file {file_path}: {e}")
 
+
+def remove_file_by_name(root_dir: str, filename_to_delete: str):
+    """
+    Recursively finds and removes all files matching a specific name within a directory tree.
+
+    This function traverses the directory structure starting from `root_dir` and
+    deletes any file that has an exact match with `filename_to_delete`. It logs each
+    action and provides a summary upon completion.
+
+    Args:
+        root_dir (str): The absolute or relative path to the root directory
+                        to start the search and removal process. The function will
+                        log an error and exit if this path does not exist.
+        filename_to_delete (str): The exact name of the file to be deleted
+                                  (e.g., 'config.yml', 'temp_data.csv').
+
+    Returns:
+        int: The total number of files that were successfully removed.
+
+    Raises:
+        FileNotFoundError: If the specified `root_dir` does not exist.
+        ValueError: If `filename_to_delete` is empty or None.
+    """
+    print(f"Initiating search for file '{filename_to_delete}' to remove within '{root_dir}'.")
+
+    # --- 1. Input Validation ---
+    if not os.path.isdir(root_dir):
+        print(f"The specified root directory '{root_dir}' does not exist or is not a directory.")
+        raise FileNotFoundError(f"The specified root directory '{root_dir}' does not exist.")
+
+    if not filename_to_delete or not filename_to_delete.strip():
+        print("The 'filename_to_delete' argument cannot be empty.")
+        raise ValueError("The 'filename_to_delete' argument cannot be empty.")
+
+    removed_count = 0
+    scanned_count = 0
+
+    # --- 2. Directory Traversal and File Removal ---
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        # Safety Check: Do not traverse or modify the .git directory.
+        if '.git' in dirnames:
+            dirnames.remove('.git')
+            print(f"Skipping '.git' directory found in '{dirpath}'.")
+
+        # Check if the target file is in the list of files for the current directory
+        if filename_to_delete in filenames:
+            file_path = os.path.join(dirpath, filename_to_delete)
+            try:
+                os.remove(file_path)
+                print(f"Removed file: {file_path}")
+                removed_count += 1
+            except IsADirectoryError:
+                # This can happen if a directory has the same name as the file we want to delete.
+                print(f"A directory was found at '{file_path}' with the same name. Skipping.")
+            except OSError as e:
+                # Log other OS-level errors (e.g., permission denied)
+                print(f"Error removing file {file_path}: {e}")
+            except Exception as e:
+                print(f"An unexpected error occurred while trying to remove {file_path}: {e}")
+        
+        scanned_count += len(filenames)
+
+    # --- 3. Final Summary ---
+    if removed_count > 0:
+        print(f"Process complete. Scanned {scanned_count} files and removed {removed_count} instance(s) of '{filename_to_delete}'.")
+    else:
+        print(f"Process complete. Scanned {scanned_count} files. No file named '{filename_to_delete}' was found.")
+        
+    return removed_count
+
+
+
+
 if __name__ == '__main__':
     # Example Usage for renaming the dotnet project
     test_dir = "test_dotnet"

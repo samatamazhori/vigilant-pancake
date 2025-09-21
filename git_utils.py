@@ -131,6 +131,31 @@ class GitManager:
             print(f"Pushed to {remote_name}/{branch_name}")
         except GitCommandError as e:
             print(f"Error pushing to remote: {e}")
+    
+    def create_branch(self, branch_name):
+        """
+        Creates a new branch but does not check it out.
+
+        This is equivalent to 'git branch <branch_name>'.
+
+        Args:
+            branch_name (str): The name for the new branch.
+        """
+        if not self.repo:
+            print("Error: Repository not initialized.")
+            return
+
+        # Check if a branch with this name already exists
+        if branch_name in self.repo.heads:
+            print(f"Error: A branch named '{branch_name}' already exists.")
+            return
+
+        try:
+            # Create a new head (branch) from the current HEAD
+            self.repo.create_head(branch_name)
+            print(f"Successfully created new branch: {branch_name}")
+        except GitCommandError as e:
+            print(f"Error creating branch '{branch_name}': {e}")
 
 if __name__ == '__main__':
     # Example usage:
@@ -144,6 +169,7 @@ if __name__ == '__main__':
     #git_manager.init_repo(repo_path)
 
     git_manager.clone_repo("ssh://azurenew.rpk.ir:22/tfs/RPKavoshDevOps/SAJAK/_git/rpk-saja-template-dotnet","test_repo/")
+    git_manager.checkout_branch("develop")
     #git_manager.add_all()
     #git_manager.commit_changes("Initial commit")
 
