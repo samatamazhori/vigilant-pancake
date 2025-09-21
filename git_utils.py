@@ -141,14 +141,11 @@ if __name__ == '__main__':
 
     # Initialize a new repository
     git_manager = GitManager()
-    git_manager.init_repo(repo_path)
+    #git_manager.init_repo(repo_path)
 
-    # Create a new file and commit it
-    with open(os.path.join(repo_path, "README.md"), "w") as f:
-        f.write("# Test Repository\n")
-
-    git_manager.add_all()
-    git_manager.commit_changes("Initial commit")
+    git_manager.clone_repo("ssh://azurenew.rpk.ir:22/tfs/RPKavoshDevOps/SAJAK/_git/rpk-saja-template-dotnet","test_repo/")
+    #git_manager.add_all()
+    #git_manager.commit_changes("Initial commit")
 
     # The following examples require a remote repository
     # git_manager.add_remote("origin", "https://github.com/user/repo.git")

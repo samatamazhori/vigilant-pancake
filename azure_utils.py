@@ -60,9 +60,10 @@ def create_azure_devops_repo(organization, project, repo_name):
 if __name__ == '__main__':
     # Example usage:
     # Replace with your actual organization, project, and repo name
-    org_url = "https://dev.azure.com/your_organization"
-    project_name = "your_project"
-    repository_name = "new-repo-from-script"
+    
+    org_url = "http://192.168.10.22:8080/tfs/RPKavoshDevOps/"
+    project_name = "SAJAK"
+    repository_name = "rpk-test-app"
 
     print(f"Attempting to create repository '{repository_name}' in project '{project_name}'...")
     result = create_azure_devops_repo(org_url, project_name, repository_name)
